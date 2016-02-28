@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  weather
 //
-//  Created by 장창순 on 2016. 2. 27..
-//  Copyright © 2016년 Swiftbook. All rights reserved.
+//  Created by ChangsoonJang on 2016. 2. 27..
+//  Copyright © 2016년 All rights reserved.
 //
 
 import UIKit
