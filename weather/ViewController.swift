@@ -30,18 +30,34 @@ class ViewController: UIViewController,UISearchBarDelegate {
         super.viewDidLoad()
         searchBar.delegate = self
         weather = Weather(city:"Seoul")
+        
         weather.downloadWeatherDetails { () -> () in
             self.updateUI()
             self.frontView.hidden = true
         }
+
     }
 
+    
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         searchInput = searchBar.text!
         weather = Weather(city: searchInput)
+        searchBar.text = ""
         weather.downloadWeatherDetails { () -> () in
             self.updateUI()
+        }
+        
+        if self.weather.url == nil {
+            let alert = UIAlertController(title: "Error", message: "Could not find '\(searchInput)'", preferredStyle: .Alert)
+            
+            let ok = UIAlertAction(title: "Try again", style: .Cancel){ (UIAlertAction) -> Void in
+            
+            alert.dismissViewControllerAnimated(true, completion: nil)
+            
+            }
+            alert.addAction(ok)
+            self.presentViewController(alert, animated: true, completion: nil)
         }
         searchBar.resignFirstResponder()
     }

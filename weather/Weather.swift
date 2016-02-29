@@ -25,6 +25,8 @@ class Weather {
     
     private var _weatherURL: String!
     
+    var url: NSURL!
+    
     var cityName: String {
         if _cityName == nil {
             _cityName = ""
@@ -95,6 +97,9 @@ class Weather {
         return _wind
     }
     
+
+
+
     init(city:String) {
         self._cityName = city
         
@@ -102,97 +107,80 @@ class Weather {
         self._weatherURL = "\(URL_BASE)\(self._cityName)\(API_KEY)"
     }
     
+    
     func downloadWeatherDetails(completed:DownloadComplete) {
-        let url = NSURL(string: _weatherURL)!
+
+        url = NSURL(string: _weatherURL)
         
-        Alamofire.request(.GET, url).responseJSON { (response) -> Void in
-            let result = response.result
-            
-            if let dict = result.value as? Dictionary<String,AnyObject> {
+        if url != nil {
+            Alamofire.request(.GET, url!).responseJSON { (response) -> Void in
+                let result = response.result
                 
-                if let city = dict["name"] as? String {
-                    self._cityName = city
-                }
-                
-                if let weatherDetail = dict["weather"] as? [Dictionary<String,AnyObject>] where weatherDetail.count > 0 {
+                if let dict = result.value as? Dictionary<String,AnyObject> {
                     
-                    if let shortDesc = weatherDetail[0]["main"] as? String {
-                        self._shortWeatherDesc = shortDesc
+                    if let city = dict["name"] as? String {
+                        self._cityName = city
                     }
-                    if let longDesc = weatherDetail[0]["description"] as? String {
-                        self._longWeatherDesc = longDesc
-                    }
-                    if let icon = weatherDetail[0]["icon"] as? String {
-                        switch icon {
-                        case "01d","01n":
-                            self._weatherIcon = "*"
-                        case "02d","02n":
-                            self._weatherIcon = "3"
-                        case "03d","03n":
-                            self._weatherIcon = "a"
-                        case "04d","04n":
-                            self._weatherIcon = "1"
-                        case "09d","09n":
-                            self._weatherIcon = "b"
-                        case "10d","10n":
-                            self._weatherIcon = "h"
-                        case "11d","11n":
-                            self._weatherIcon = "p"
-                        case "13d","13n":
-                            self._weatherIcon = "N"
-                        case "50d","50n" :
-                            self._weatherIcon = "k"
-                        default :
-                            self._weatherIcon = "@"
+                    
+                    if let weatherDetail = dict["weather"] as? [Dictionary<String,AnyObject>] where weatherDetail.count > 0 {
+                        
+                        if let shortDesc = weatherDetail[0]["main"] as? String {
+                            self._shortWeatherDesc = shortDesc
                         }
-                  
+                        if let longDesc = weatherDetail[0]["description"] as? String {
+                            self._longWeatherDesc = longDesc
+                        }
+                        if let icon = weatherDetail[0]["icon"] as? String {
+                            switch icon {
+                            case "01d","01n":
+                                self._weatherIcon = "*"
+                            case "02d","02n":
+                                self._weatherIcon = "3"
+                            case "03d","03n":
+                                self._weatherIcon = "a"
+                            case "04d","04n":
+                                self._weatherIcon = "1"
+                            case "09d","09n":
+                                self._weatherIcon = "b"
+                            case "10d","10n":
+                                self._weatherIcon = "h"
+                            case "11d","11n":
+                                self._weatherIcon = "p"
+                            case "13d","13n":
+                                self._weatherIcon = "N"
+                            case "50d","50n" :
+                                self._weatherIcon = "k"
+                            default :
+                                self._weatherIcon = "@"
+                            }
+                        }
                     }
-
+                    if let detail = dict["main"] as? Dictionary<String,AnyObject> {
+                        if let temp = detail["temp"] as? Int {
+                            self._currentTemp = "\(temp)°"
+                        }
+                        if let minTmp = detail["temp_min"] as? Int {
+                            self._minTemp = "▼\(minTmp)°"
+                        }
+                        if let maxTmp = detail["temp_max"] as? Int {
+                            self._maxTemp  = "▲\(maxTmp)°"
+                        }
+                        if let humid = detail["humidity"] as? Int {
+                            self._humidity = "\(humid) %"
+                        }
+                        if let press = detail["pressure"] as? Int {
+                            self._pressure = "\(press) hPa"
+                        }
+                    }
+                    
+                    if let wnd = dict["wind"] as? Dictionary<String,AnyObject> {
+                        if let speed = wnd["speed"] as? Double {
+                            self._wind = "\(speed) m/s"
+                        }
+                    }
                 }
-                if let detail = dict["main"] as? Dictionary<String,AnyObject> {
-                    if let temp = detail["temp"] as? Int {
-                        self._currentTemp = "\(temp)°"
-                    }
-                    if let minTmp = detail["temp_min"] as? Int {
-                        self._minTemp = "▼\(minTmp)°"
-                    }
-                    if let maxTmp = detail["temp_max"] as? Int {
-                        self._maxTemp  = "▲\(maxTmp)°"
-                    }
-                    if let humid = detail["humidity"] as? Int {
-                        self._humidity = "\(humid) %"
-                    }
-                    if let press = detail["pressure"] as? Int {
-                        self._pressure = "\(press) hPa"
-                    }
-                }
-                
-                if let wnd = dict["wind"] as? Dictionary<String,AnyObject> {
-                    if let speed = wnd["speed"] as? Double {
-                        self._wind = "\(speed) m/s"
-                    }
-                }
-
+                completed()
             }
-            completed()
-          
         }
-
     }
-    
-    
-    
-    
-    
-
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
