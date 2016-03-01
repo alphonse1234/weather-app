@@ -107,6 +107,7 @@ class Weather {
         self._weatherURL = "\(URL_BASE)\(self._cityName)\(API_KEY)"
     }
     
+
     
     func downloadWeatherDetails(completed:DownloadComplete) {
 
